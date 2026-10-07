@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>중고등학교 기초 한자 연습</title>
+<style>
+  :root {
+    --bg: #f7f6fb;
+    --panel: #ffffff;
+    --text: #263238;
+    --muted: #6f7b82;
+    --line: #e7e6ee;
+    --lavender: #ebe7fb;
+    --mint: #e6f5ef;
+    --peach: #fdeee7;
+    --yellow: #fff7d8;
+    --green: #dff3e5;
+    --green-strong: #2e7d4f;
+    --red: #fde3e3;
+    --red-strong: #b94747;
+    --accent: #6f67a9;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Noto Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  .app {
+    width: min(920px, calc(100% - 28px));
+    margin: 0 auto;
+    padding: 28px 0 48px;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 26px;
+  }
+
+  .brand-wrap { position: relative; }
+  .brand {
+    border: 0;
+    background: transparent;
+    color: #5d5876;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 8px 4px;
+    cursor: pointer;
+  }
+
+  .copyright-popover {
+    display: none;
+    position: absolute;
+    top: 36px;
+    left: 0;
+    z-index: 20;
+    width: min(420px, calc(100vw - 42px));
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 12px 34px rgba(68, 61, 95, 0.14);
+    font-size: 13px;
+    line-height: 1.65;
+    color: #4d5358;
+  }
+  .brand-wrap:hover .copyright-popover,
+  .brand-wrap.open .copyright-popover { display: block; }
+  .copyright-popover strong { color: var(--text); }
+  .copyright-popover a { color: var(--accent); text-decoration: none; word-break: break-all; }
+
+  .progress-wrap {
+    min-width: 160px;
+    text-align: right;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .progress-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 7px;
+  }
+  .progress-track {
+    width: 160px;
+    height: 7px;
+    background: #e8e7ef;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0;
+    background: #9c94cf;
+    transition: width 0.2s ease;
+  }
+
+  h1 {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(28px, 5vw, 42px);
+    letter-spacing: -0.03em;
+  }
+  .subtitle {
+    margin: 10px auto 28px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin: 34px auto 0;
+    max-width: 760px;
+  }
+
+  .level-card {
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 26px 24px;
+    text-align: left;
+    cursor: pointer;
+    min-height: 180px;
+    box-shadow: 0 7px 22px rgba(56, 50, 84, 0.07);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .level-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(56, 50, 84, 0.11); }
+  .level-card.level1 { background: var(--mint); }
+  .level-card.level2 { background: var(--lavender); }
+  .level-label { font-size: 13px; font-weight: 700; color: #5c6470; margin-bottom: 10px; }
+  .level-title { font-size: 25px; font-weight: 800; margin-bottom: 12px; }
+  .level-desc { color: #5e666d; line-height: 1.6; font-size: 14px; }
+  .level-count { margin-top: 16px; font-size: 13px; font-weight: 700; color: #626878; }
+
+  .study-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 10px auto 18px;
+    max-width: 700px;
+  }
+  .mode-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--yellow);
+    color: #77692b;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .small-btn {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: #5e6570;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .flashcard {
+    width: min(700px, 100%);
+    min-height: 400px;
+    margin: 0 auto;
+    border-radius: 28px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    box-shadow: 0 14px 36px rgba(52, 47, 80, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    padding: 38px 28px;
+    user-select: none;
+  }
+  .flashcard.front { background: #fffdf8; }
+  .flashcard.back { background: #f8fbff; }
+
+  .hanja {
+    font-family: "Noto Serif CJK KR", "Batang", serif;
+    font-size: clamp(92px, 18vw, 150px);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .sound {
+    font-size: 30px;
+    font-weight: 800;
+    color: #123f8c;
+  }
+  .highlight-sound {
+    color: #123f8c;
+    font-weight: 800;
+  }
+  .tap-hint {
+    margin-top: 26px;
+    font-size: 13px;
+    color: #9a9da5;
+  }
+
+  .meaning-label { font-size: 13px; font-weight: 700; color: #8a8f96; margin-bottom: 8px; }
+  .meaning { font-size: clamp(34px, 7vw, 52px); font-weight: 800; margin-bottom: 30px; }
+  .example-label { font-size: 13px; font-weight: 700; color: #8a8f96; margin-bottom: 10px; }
+  .examples {
+    font-size: 21px;
+    line-height: 1.7;
+    word-break: keep-all;
+  }
+
+  .answer-buttons {
+    width: min(700px, 100%);
+    margin: 18px auto 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .answer-btn {
+    border: 0;
+    border-radius: 16px;
+    padding: 16px 18px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .know { background: var(--green); color: var(--green-strong); }
+  .dont-know { background: var(--red); color: var(--red-strong); }
+  .answer-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .status-message {
+    text-align: center;
+    min-height: 28px;
+    margin-top: 12px;
+    color: #777d85;
+    font-size: 13px;
+  }
+
+  .complete-card {
+    max-width: 680px;
+    margin: 40px auto 0;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 42px 30px;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(52, 47, 80, 0.09);
+  }
+  .complete-card h2 { font-size: 30px; margin: 0 0 12px; }
+  .complete-card p { color: var(--muted); line-height: 1.7; }
+  .primary-btn {
+    margin-top: 18px;
+    border: 0;
+    border-radius: 14px;
+    padding: 13px 20px;
+    background: var(--lavender);
+    color: #544e79;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  @media (max-width: 700px) {
+    .app { width: min(100% - 20px, 920px); padding-top: 16px; }
+    .level-grid { grid-template-columns: 1fr; }
+    .topbar { margin-bottom: 14px; }
+    .progress-wrap { min-width: 120px; }
+    .progress-track { width: 120px; }
+    .flashcard { min-height: 360px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand-wrap" id="brandWrap">
+      <button class="brand" id="brandBtn" aria-expanded="false">© Ms. Hana</button>
+      <div class="copyright-popover" id="copyrightPopover">
+        <strong>© 2026 Hyuna (Hana) Gu. All rights reserved.</strong><br><br>
+        본 학습 자료는 학생의 개인 학습을 위해 제공됩니다. 수업, 그룹 학습, 기관 프로그램 또는 기타 교육 목적으로 복제·배포·공유하거나 사용하는 경우 저작권자의 사전 동의를 받아야 합니다.<br><br>
+        향후 업데이트되는 플래시카드 및 학습 자료에 관한 문의 또는 사용 허가 문의는
+        <a href="mailto:hanagu.teaching@gmail.com">hanagu.teaching@gmail.com</a>으로 연락해 주세요.
+      </div>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap" style="visibility:hidden;">
+      <div class="progress-row">
+        <span id="progressText">0 / 0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <section class="screen active" id="homeScreen">
+    <h1>중고등학교 기초 한자 연습</h1>
+    <p class="subtitle">학습할 레벨을 선택하세요.</p>
+
+    <div class="level-grid">
+      <button class="level-card level1" data-level="level1">
+        <div class="level-label">LEVEL 1</div>
+        <div class="level-title">기초 핵심 한자</div>
+        <div class="level-desc">일상어와 학교생활, 기본 교과 어휘에서 자주 만나는 핵심 한자를 익힙니다.</div>
+        <div class="level-count" id="level1Count"></div>
+      </button>
+
+      <button class="level-card level2" data-level="level2">
+        <div class="level-label">LEVEL 2</div>
+        <div class="level-title">초급 핵심 한자</div>
+        <div class="level-desc">문학·분석·추상 개념을 이해하는 데 도움이 되는 한자를 확장해서 익힙니다.</div>
+        <div class="level-count" id="level2Count"></div>
+      </button>
+    </div>
+  </section>
+
+  <section class="screen" id="studyScreen">
+    <div class="study-head">
+      <div class="mode-label" id="modeLabel">학습 중</div>
+      <button class="small-btn" id="homeBtn">레벨 선택</button>
+    </div>
+
+    <div class="flashcard front" id="flashcard" role="button" tabindex="0" aria-label="카드를 눌러 뜻 보기">
+      <div id="cardContent"></div>
+    </div>
+
+    <div class="answer-buttons">
+      <button class="answer-btn know" id="knowBtn" disabled>알아요</button>
+      <button class="answer-btn dont-know" id="dontKnowBtn" disabled>몰라요</button>
+    </div>
+    <div class="status-message" id="statusMessage"></div>
+  </section>
+
+  <section class="screen" id="completeScreen">
+    <div class="complete-card">
+      <h2>학습 완료!</h2>
+      <p id="completeText">이 레벨의 모든 카드를 확인했습니다.</p>
+      <button class="primary-btn" id="backHomeBtn">다른 레벨 선택하기</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const decks = {
+  level1: [
+    { hanja:'人', sound:'인', meaning:'사람', examples:['인간','개인','인류'] },
+    { hanja:'民', sound:'민', meaning:'백성, 사람들', examples:['국민','시민','민족'] },
+    { hanja:'子', sound:'자', meaning:'아이, 자식', examples:['자녀','자식'] },
+    { hanja:'女', sound:'녀', meaning:'여자', examples:['여성','남녀'] },
+    { hanja:'男', sound:'남', meaning:'남자', examples:['남성','남녀'] },
+    { hanja:'父', sound:'부', meaning:'아버지', examples:['부모','부친'] },
+    { hanja:'母', sound:'모', meaning:'어머니', examples:['부모','모성'] },
+    { hanja:'友', sound:'우', meaning:'친구, 벗', examples:['우정','교우'] },
+    { hanja:'家', sound:'가', meaning:'집, 가족', examples:['가족','가정','국가'] },
+    { hanja:'心', sound:'심', meaning:'마음', examples:['심리','관심','중심'] },
+    { hanja:'愛', sound:'애', meaning:'사랑', examples:['애정','애착'] },
+    { hanja:'學', sound:'학', meaning:'배우다', examples:['학습','학교','학문'] },
+    { hanja:'習', sound:'습', meaning:'익히다', examples:['학습','연습'] },
+    { hanja:'敎', sound:'교', meaning:'가르치다', examples:['교육','교사'] },
+    { hanja:'文', sound:'문', meaning:'글, 문화', examples:['문학','문화','문장'] },
+    { hanja:'字', sound:'자', meaning:'글자', examples:['문자','한자'] },
+    { hanja:'語', sound:'어', meaning:'말, 언어', examples:['언어','어휘'] },
+    { hanja:'言', sound:'언', meaning:'말하다, 말', examples:['언어','발언'] },
+    { hanja:'話', sound:'화', meaning:'말, 이야기', examples:['대화','회화'] },
+    { hanja:'書', sound:'서', meaning:'글, 책, 쓰다', examples:['도서','서술'] },
+    { hanja:'讀', sound:'독', meaning:'읽다', examples:['독서','독해'] },
+    { hanja:'知', sound:'지', meaning:'알다', examples:['지식','인지'] },
+    { hanja:'思', sound:'사', meaning:'생각하다', examples:['사상','사고'] },
+    { hanja:'想', sound:'상', meaning:'생각, 상상', examples:['상상','이상'] },
+    { hanja:'意', sound:'의', meaning:'뜻, 의도', examples:['의미','의도','의견'] },
+    { hanja:'感', sound:'감', meaning:'느끼다', examples:['감정','감각','공감'] },
+    { hanja:'情', sound:'정', meaning:'감정, 정', examples:['감정','인정','정서'] },
+    { hanja:'時', sound:'시', meaning:'시간, 때', examples:['시간','시대'] },
+    { hanja:'前', sound:'전', meaning:'앞, 이전', examples:['이전','전후'] },
+    { hanja:'後', sound:'후', meaning:'뒤, 이후', examples:['이후','전후'] },
+    { hanja:'中', sound:'중', meaning:'가운데', examples:['중심','중간'] },
+    { hanja:'外', sound:'외', meaning:'밖', examples:['외부','외적'] },
+    { hanja:'內', sound:'내', meaning:'안', examples:['내부','내면'] },
+    { hanja:'行', sound:'행', meaning:'행동하다, 가다', examples:['행동','실행'] },
+    { hanja:'動', sound:'동', meaning:'움직이다', examples:['행동','활동','동적'] },
+    { hanja:'變', sound:'변', meaning:'바뀌다', examples:['변화','변형'] },
+    { hanja:'化', sound:'화', meaning:'~이 되다, 변화하다', examples:['변화','문화'] },
+    { hanja:'成', sound:'성', meaning:'이루다', examples:['성장','완성'] },
+    { hanja:'發', sound:'발', meaning:'생기다, 일어나다', examples:['발생','발전'] },
+    { hanja:'善', sound:'선', meaning:'착함, 좋음', examples:['선악','선의'] },
+    { hanja:'惡', sound:'악', meaning:'나쁨', examples:['악행','선악'] },
+    { hanja:'正', sound:'정', meaning:'바르다', examples:['정의','정당'] },
+    { hanja:'力', sound:'력', meaning:'힘', examples:['능력','권력'] },
+    { hanja:'法', sound:'법', meaning:'법, 방법', examples:['법률','방법'] },
+    { hanja:'主', sound:'주', meaning:'중심, 주인', examples:['주제','주인공'] },
+    { hanja:'題', sound:'제', meaning:'제목, 문제', examples:['주제','과제'] },
+    { hanja:'作', sound:'작', meaning:'만들다', examples:['작품','작가'] },
+    { hanja:'品', sound:'품', meaning:'물건, 작품', examples:['작품','품질'] },
+    { hanja:'個', sound:'개', meaning:'하나, 개인', examples:['개인','개별'] },
+    { hanja:'別', sound:'별', meaning:'나누다, 다르다', examples:['개별','차별'] },
+    { hanja:'關', sound:'관', meaning:'관계하다', examples:['관계','관련'] },
+    { hanja:'對', sound:'대', meaning:'마주하다', examples:['대비','대응'] },
+    { hanja:'比', sound:'비', meaning:'견주다, 비교하다', examples:['비교','비율'] },
+    { hanja:'因', sound:'인', meaning:'원인이 되다', examples:['원인','인과'] },
+    { hanja:'果', sound:'과', meaning:'결과, 열매', examples:['결과','효과'] },
+    { hanja:'現', sound:'현', meaning:'나타나다', examples:['현재','현실','현상'] },
+    { hanja:'表', sound:'표', meaning:'겉, 나타내다', examples:['표현','발표'] }
+  ],
+  level2: [
+    { hanja:'社', sound:'사', meaning:'사회, 조직', examples:['사회','회사'] },
+    { hanja:'精', sound:'정', meaning:'정신, 정밀함', examples:['정신','정서'] },
+    { hanja:'志', sound:'지', meaning:'뜻, 의지', examples:['의지','지향'] },
+    { hanja:'忍', sound:'인', meaning:'참다', examples:['인내','인내심'] },
+    { hanja:'解', sound:'해', meaning:'풀다, 이해하다', examples:['이해','해석'] },
+    { hanja:'判', sound:'판', meaning:'판단하다', examples:['판단','판별'] },
+    { hanja:'識', sound:'식', meaning:'알다, 인식하다', examples:['인식','지식'] },
+    { hanja:'說', sound:'설', meaning:'설명하다, 말하다', examples:['설명','소설'] },
+    { hanja:'論', sound:'논', meaning:'논하다', examples:['논리','논문','토론'] },
+    { hanja:'記', sound:'기', meaning:'기록하다', examples:['기록','일기'] },
+    { hanja:'述', sound:'술', meaning:'서술하다', examples:['서술','기술'] },
+    { hanja:'原', sound:'원', meaning:'근원, 처음', examples:['원인','원리'] },
+    { hanja:'理', sound:'리', meaning:'이치, 원리', examples:['이유','논리','원리'] },
+    { hanja:'係', sound:'계', meaning:'잇다, 관계하다', examples:['관계','연계'] },
+    { hanja:'相', sound:'상', meaning:'서로', examples:['상호','상대'] },
+    { hanja:'連', sound:'연', meaning:'잇다', examples:['연결','관련'] },
+    { hanja:'靜', sound:'정', meaning:'고요하다', examples:['정적','안정'] },
+    { hanja:'展', sound:'전', meaning:'펼치다', examples:['발전','전개'] },
+    { hanja:'過', sound:'과', meaning:'지나다', examples:['과정','과거'] },
+    { hanja:'程', sound:'정', meaning:'과정, 정도', examples:['과정','정도'] },
+    { hanja:'狀', sound:'상', meaning:'상태, 모양', examples:['상황','상태'] },
+    { hanja:'義', sound:'의', meaning:'옳음', examples:['정의','의무'] },
+    { hanja:'德', sound:'덕', meaning:'덕, 도덕', examples:['도덕','덕목'] },
+    { hanja:'道', sound:'도', meaning:'길, 원칙', examples:['도덕','인도'] },
+    { hanja:'責', sound:'책', meaning:'책임', examples:['책임'] },
+    { hanja:'任', sound:'임', meaning:'맡다', examples:['책임','임무'] },
+    { hanja:'實', sound:'실', meaning:'실제, 참됨', examples:['현실','실천'] },
+    { hanja:'共', sound:'공', meaning:'함께', examples:['공동','공통'] },
+    { hanja:'公', sound:'공', meaning:'공공, 공평함', examples:['공공','공정'] },
+    { hanja:'私', sound:'사', meaning:'개인적, 사사로움', examples:['사적','사생활'] },
+    { hanja:'權', sound:'권', meaning:'권리, 힘', examples:['권력','권리'] },
+    { hanja:'制', sound:'제', meaning:'제도, 통제', examples:['제도','통제'] },
+    { hanja:'規', sound:'규', meaning:'규칙', examples:['규정','규칙'] },
+    { hanja:'代', sound:'대', meaning:'시대, 세대', examples:['시대','세대'] },
+    { hanja:'世', sound:'세', meaning:'세상', examples:['세계','세대'] },
+    { hanja:'界', sound:'계', meaning:'경계, 범위', examples:['세계','한계'] },
+    { hanja:'場', sound:'장', meaning:'장소', examples:['장소','현장'] },
+    { hanja:'性', sound:'성', meaning:'성질, 특성', examples:['성격','특성'] },
+    { hanja:'格', sound:'격', meaning:'틀, 격식', examples:['성격','인격'] },
+    { hanja:'型', sound:'형', meaning:'모형, 유형', examples:['유형','전형'] },
+    { hanja:'形', sound:'형', meaning:'모양, 형태', examples:['형상','형식'] },
+    { hanja:'象', sound:'상', meaning:'모습, 형상', examples:['형상','상징'] },
+    { hanja:'徵', sound:'징', meaning:'징표, 표시', examples:['특징','상징'] },
+    { hanja:'味', sound:'미', meaning:'맛, 뜻', examples:['의미'] },
+    { hanja:'創', sound:'창', meaning:'처음 만들다', examples:['창작','창의'] },
+    { hanja:'構', sound:'구', meaning:'얽다, 구성하다', examples:['구성','구조'] },
+    { hanja:'造', sound:'조', meaning:'만들다', examples:['구조','창조'] },
+    { hanja:'效', sound:'효', meaning:'효과, 보람', examples:['효과','효율'] },
+    { hanja:'評', sound:'평', meaning:'평가하다', examples:['평가','비평'] },
+    { hanja:'批', sound:'비', meaning:'비판하다', examples:['비평','비판'] },
+    { hanja:'析', sound:'석', meaning:'나누어 살피다', examples:['분석'] },
+    { hanja:'釋', sound:'석', meaning:'풀이하다', examples:['해석'] }
+  ]
+};
+
+let currentLevel = null;
+let deck = [];
+let mainIndex = 0;
+let currentCard = null;
+let showingBack = false;
+let missedPool = [];
+let reviewQueue = [];
+let reviewMode = false;
+let completedMainCards = 0;
+
+const homeScreen = document.getElementById('homeScreen');
+const studyScreen = document.getElementById('studyScreen');
+const completeScreen = document.getElementById('completeScreen');
+const flashcard = document.getElementById('flashcard');
+const cardContent = document.getElementById('cardContent');
+const knowBtn = document.getElementById('knowBtn');
+const dontKnowBtn = document.getElementById('dontKnowBtn');
+const modeLabel = document.getElementById('modeLabel');
+const statusMessage = document.getElementById('statusMessage');
+const progressWrap = document.getElementById('progressWrap');
+const progressText = document.getElementById('progressText');
+const progressFill = document.getElementById('progressFill');
+const brandWrap = document.getElementById('brandWrap');
+const brandBtn = document.getElementById('brandBtn');
+
+document.getElementById('level1Count').textContent = `${decks.level1.length}자`;
+document.getElementById('level2Count').textContent = `${decks.level2.length}자`;
+
+function showScreen(name) {
+  [homeScreen, studyScreen, completeScreen].forEach(el => el.classList.remove('active'));
+  name.classList.add('active');
+}
+
+function startLevel(levelKey) {
+  currentLevel = levelKey;
+  deck = decks[levelKey];
+  mainIndex = 0;
+  completedMainCards = 0;
+  missedPool = [];
+  reviewQueue = [];
+  reviewMode = false;
+  progressWrap.style.visibility = 'visible';
+  showScreen(studyScreen);
+  loadNextMainCard();
+}
+
+function loadNextMainCard() {
+  reviewMode = false;
+  modeLabel.textContent = currentLevel === 'level1' ? 'LEVEL 1 · 기초 핵심 한자' : 'LEVEL 2 · 초급 핵심 한자';
+  modeLabel.style.background = currentLevel === 'level1' ? 'var(--mint)' : 'var(--lavender)';
+  statusMessage.textContent = '';
+
+  if (mainIndex >= deck.length) {
+    if (missedPool.length > 0) {
+      startReview();
+    } else {
+      finishLevel();
+    }
+    return;
+  }
+
+  currentCard = deck[mainIndex];
+  renderFront();
+  updateProgress();
+}
+
+function renderFront() {
+  showingBack = false;
+  flashcard.classList.remove('back');
+  flashcard.classList.add('front');
+  cardContent.innerHTML = `
+    <div class="hanja">${currentCard.hanja}</div>
+    <div class="sound">${currentCard.sound}</div>
+    <div class="tap-hint">카드를 눌러 뜻 보기</div>
+  `;
+  knowBtn.disabled = true;
+  dontKnowBtn.disabled = true;
+}
+
+function highlightSoundInWord(word, sound) {
+  if (!sound || !word.includes(sound)) return word;
+  return word.split(sound).join(`<span class="highlight-sound">${sound}</span>`);
+}
+
+function renderBack() {
+  if (showingBack) return;
+  showingBack = true;
+  flashcard.classList.remove('front');
+  flashcard.classList.add('back');
+  const highlightedExamples = currentCard.examples
+    .map(word => highlightSoundInWord(word, currentCard.sound))
+    .join(' · ');
+  cardContent.innerHTML = `
+    <div class="meaning-label">기본 의미</div>
+    <div class="meaning">${currentCard.meaning}</div>
+    <div class="example-label">대표 한자어</div>
+    <div class="examples">${highlightedExamples}</div>
+  `;
+  knowBtn.disabled = false;
+  dontKnowBtn.disabled = false;
+}
+
+function answerMain(knows) {
+  if (!showingBack) return;
+
+  if (!knows && !missedPool.includes(currentCard)) {
+    missedPool.push(currentCard);
+  }
+
+  mainIndex += 1;
+  completedMainCards = mainIndex;
+
+  if (missedPool.length >= 5) {
+    startReview();
+  } else {
+    loadNextMainCard();
+  }
+}
+
+function startReview() {
+  reviewMode = true;
+  reviewQueue = [...missedPool];
+  missedPool = [];
+  modeLabel.textContent = `복습 중 · 남은 카드 ${reviewQueue.length}개`;
+  modeLabel.style.background = 'var(--yellow)';
+  statusMessage.textContent = '모든 카드를 “알아요”로 바꿀 때까지 복습합니다.';
+  currentCard = reviewQueue[0];
+  renderFront();
+  updateProgress();
+}
+
+function answerReview(knows) {
+  if (!showingBack) return;
+
+  if (knows) {
+    reviewQueue.shift();
+  } else {
+    const again = reviewQueue.shift();
+    reviewQueue.push(again);
+  }
+
+  if (reviewQueue.length === 0) {
+    statusMessage.textContent = '복습 완료! 다음 카드로 넘어갑니다.';
+    setTimeout(() => {
+      loadNextMainCard();
+    }, 500);
+    return;
+  }
+
+  currentCard = reviewQueue[0];
+  modeLabel.textContent = `복습 중 · 남은 카드 ${reviewQueue.length}개`;
+  renderFront();
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = deck.length || 1;
+  const current = Math.min(mainIndex + (reviewMode ? 0 : 1), total);
+  const percent = Math.round((completedMainCards / total) * 100);
+  progressText.textContent = reviewMode
+    ? `전체 ${completedMainCards} / ${total} · 복습 ${reviewQueue.length}개`
+    : `${current} / ${total}`;
+  progressFill.style.width = `${percent}%`;
+}
+
+function finishLevel() {
+  progressFill.style.width = '100%';
+  progressText.textContent = `${deck.length} / ${deck.length}`;
+  document.getElementById('completeText').textContent =
+    currentLevel === 'level1'
+      ? 'LEVEL 1 기초 핵심 한자를 모두 학습했습니다.'
+      : 'LEVEL 2 초급 핵심 한자를 모두 학습했습니다.';
+  showScreen(completeScreen);
+}
+
+flashcard.addEventListener('click', renderBack);
+flashcard.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    renderBack();
+  }
+});
+
+knowBtn.addEventListener('click', () => reviewMode ? answerReview(true) : answerMain(true));
+dontKnowBtn.addEventListener('click', () => reviewMode ? answerReview(false) : answerMain(false));
+
+document.querySelectorAll('.level-card').forEach(btn => {
+  btn.addEventListener('click', () => startLevel(btn.dataset.level));
+});
+
+document.getElementById('homeBtn').addEventListener('click', () => {
+  progressWrap.style.visibility = 'hidden';
+  showScreen(homeScreen);
+});
+document.getElementById('backHomeBtn').addEventListener('click', () => {
+  progressWrap.style.visibility = 'hidden';
+  showScreen(homeScreen);
+});
+
+brandBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const isOpen = brandWrap.classList.toggle('open');
+  brandBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+});
+document.addEventListener('click', (e) => {
+  if (!brandWrap.contains(e.target)) {
+    brandWrap.classList.remove('open');
+    brandBtn.setAttribute('aria-expanded', 'false');
+  }
+});
+</script>
+</body>
+</html>
